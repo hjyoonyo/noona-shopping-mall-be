@@ -33,12 +33,68 @@ cartController.addItemToCart= async(req,res)=>{
     }
 };
 
-cartController.getCartList = async (req,res)=>{
+cartController.getCart = async (req,res)=>{
     try {
         const {userId} = req;
-        const cart = await Cart.findOne({userId});
-        // console.log("rrr ", cart);
-        res.status(200).json({status:"success",data:cart});
+        const cart = await Cart.findOne({userId}).populate({
+            path:'items',
+            populate:{
+                path:'productId',
+                model: "Product",
+            }
+        });
+        // console.log("rrr ", cart.items);
+        res.status(200).json({status:"success",data:cart.items});
+    } catch (error) {
+        res.status(400).json({status:"fail",error:error.message});
+    }
+}
+
+cartController.deleteCartItem = async (req,res) => {
+    try {
+        const { userId } = req;
+        const { id } = req.params; // 요청 파라미터에서 productId 가져오기
+        // 특정 productId를 가진 아이템을 삭제
+        const cart = await Cart.findOne({ userId });
+        cart.items = cart.items.filter((item) => !item._id.equals(id));
+        await cart.save();
+        res.status(200).json({status:"success",cartItemQty: cart.items.length });
+    } catch (error) {
+        res.status(400).json({status:"fail",error:error.message});
+    }
+}
+
+cartController.updateQty = async (req,res)=>{
+    try {
+        const { userId } = req;
+        const { id } = req.params;
+        const { qty } = req.body;
+        console.log("id",id);
+        console.log("qty",qty);
+        const cart = await Cart.findOne({ userId }).populate({
+            path: "items",
+            populate: {
+                path: "productId",
+                model: "Product",
+            },
+        });
+        if (!cart) throw new Error("카트가 존재하지 않습니다.");
+        const index = cart.items.findIndex((item) => item._id.equals(id));
+        if (index === -1) throw new Error("해당 아이템이 존재하지 않습니다.");
+        cart.items[index].qty = qty;
+        await cart.save();
+        res.status(200).json({ status: 200, data: cart.items });
+    } catch (error) {
+        return res.status(400).json({ status: "fail", error: error.message });
+    }
+}
+
+cartController.getCartQty = async (req,res) => {
+    try {
+        const { userId } = req;
+        const cart = await Cart.findOne({ userId });
+        
+        res.status(200).json({status:"success",cartItemQty: cart.items.length });
     } catch (error) {
         res.status(400).json({status:"fail",error:error.message});
     }

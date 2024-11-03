@@ -1,3 +1,4 @@
+const Cart = require("../models/Cart");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const userController={};
@@ -31,7 +32,7 @@ userController.getUser = async(req,res) => {
         if(user){
             return res.status(200).json({status:"success",user});
         }
-        throw new Error("Invalid token");
+        throw new Error("로그인 후 이용 가능합니다.");
 
     } catch (error) {
         return res.status(400).json({status:"error",error:error.message});
