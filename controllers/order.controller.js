@@ -40,7 +40,6 @@ orderController.createOrder=async(req,res)=>{
 orderController.getOrder = async(req,res)=>{
     try {
         const {userId} = req;
-        console.log("userId ",userId);
         const orderList = await Order.find({userId})
             .sort({ createdAt: -1 })
             .populate({
@@ -56,6 +55,25 @@ orderController.getOrder = async(req,res)=>{
     } catch (error) {
         res.status(400).json({status:"fail",error:error.message});
     }
+}
+
+orderController.getOrderDetail = async(req,res)=>{
+  try {
+      const {id} = req.params;
+      console.log("Dfs",id);
+      const order = await Order.findById(id)
+          .populate({
+              path:'items',
+              populate:{
+                  path:'productId',
+                  model: "Product",
+              }
+          });
+      
+      res.status(200).json({status:"success",data:order});
+  } catch (error) {
+      res.status(400).json({status:"fail",error:error.message});
+  }
 }
 
 orderController.getOrderList = async (req,res)=>{

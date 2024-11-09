@@ -4,7 +4,7 @@ productController.createProduct = async (req,res) => {
     try {
         const {sku,name,size,image,category,description,price,stock,status}=req.body;
         const product = new Product({sku,name,size,image,category,description,price,stock,status});
-        console.log("product ",product);
+        
         await product.save();
         return res.status(200).json({status:"success",product});
     } catch (error) {
@@ -16,12 +16,7 @@ productController.createProduct = async (req,res) => {
 productController.getProduct = async (req,res) => {
     try {
         const {page,name,pageSize} = req.query;
-        // if(name){
-        //     const products = await Product.find({name:{$regex:name,$options:"i"}}) //$regex:name => 포함된, $option:"i" => case insensitive
-        // }else{
-        //     const products = await Product.find({});
-        // }
-        // console.log("product legnth ", product.length);
+       
         const cond = { isDeleted: false, ...(name ? { name: { $regex: name, $options: "i" } } : {}) };
         let query = Product.find(cond).sort({ createdAt:-1}); //선언
         let response = {status:"seccess"};

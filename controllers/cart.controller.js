@@ -43,7 +43,7 @@ cartController.getCart = async (req,res)=>{
                 model: "Product",
             }
         });
-        // console.log("rrr ", cart.items);
+     
         res.status(200).json({status:"success",data:cart.items});
     } catch (error) {
         res.status(400).json({status:"fail",error:error.message});
@@ -69,8 +69,7 @@ cartController.updateQty = async (req,res)=>{
         const { userId } = req;
         const { id } = req.params;
         const { qty } = req.body;
-        console.log("id",id);
-        console.log("qty",qty);
+        
         const cart = await Cart.findOne({ userId }).populate({
             path: "items",
             populate: {
